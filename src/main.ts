@@ -1,19 +1,42 @@
 import * as core from '@actions/core'
-import {wait} from './wait'
+import * as fs from 'fs'
+import CoverageFormat from './enum/coverage-format'
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
+    const format: string = core.getInput('format')
+    const validFormats: string[] = Object.values(CoverageFormat)
+    if (!validFormats.includes(format)) {
+      core.setFailed(
+        `Unknown format "${format}" provided, valid values: ${validFormats.join(
+          ', '
+        )}`
+      )
+      return
+    }
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    const coveragePath: string = core.getInput('coverage-path')
+    if (!fs.existsSync(coveragePath)) {
+      core.setFailed(
+        `Invalid coverage path specified, "${coveragePath}" was not found`
+      )
+      return
+    }
 
-    core.setOutput('time', new Date().toTimeString())
+    core.debug(`check ${coveragePath} for coverage files in format ${format}`)
+    // const ms: string = core.getInput('milliseconds')
+    // core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
+    //
+    // core.debug(new Date().toTimeString())
+    // await wait(parseInt(ms, 10))
+    // core.debug(new Date().toTimeString())
+    //
+    // core.setOutput('time', new Date().toTimeString())
   } catch (error) {
-    if (error instanceof Error) core.setFailed(error.message)
+    if (error instanceof Error) {
+      core.setFailed(error.message)
+    }
   }
 }
 
-run()
+void run()
