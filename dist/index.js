@@ -124,8 +124,8 @@ function run() {
                 return;
             }
             const targetBranch = process.env.GITHUB_BASE_REF;
-            const pullBranch = process.env.GITHUB_HEAD_REF;
-            const gitOutput = (0, child_process_1.execSync)(`git diff --unified=0 ${targetBranch} ${pullBranch}`).toString();
+            // const pullBranch = process.env.GITHUB_HEAD_REF
+            const gitOutput = (0, child_process_1.execSync)(`git diff --unified=0 ${targetBranch}`).toString();
             const modifiedLines = new diff_parser_1.default().getModifiedLines(gitOutput);
             core.info(`check ${coveragePath} for coverage files in format ${format}`);
             core.info(`modifiedLines ${JSON.stringify(modifiedLines)}`);
