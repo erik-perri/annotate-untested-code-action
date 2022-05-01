@@ -127,9 +127,20 @@ function run() {
             core.info(`process.env ${JSON.stringify(process.env)}`);
             const targetBranch = process.env.GITHUB_BASE_REF;
             const pullBranch = process.env.GITHUB_HEAD_REF;
-            const gitOutput = (0, child_process_1.execSync)(`git diff --unified=0 origin/${targetBranch} ${pullBranch}`).toString();
-            const modifiedLines = new diff_parser_1.default().getModifiedLines(gitOutput);
-            core.info(`modifiedLines ${JSON.stringify(modifiedLines)}`);
+            try {
+                const gitOutput = (0, child_process_1.execSync)(`git diff --unified=0 origin/${targetBranch} ${pullBranch}`).toString();
+                const modifiedLines = new diff_parser_1.default().getModifiedLines(gitOutput);
+                core.info(`modifiedLines ${JSON.stringify(modifiedLines)}`);
+            }
+            catch (e) {
+                if (e instanceof Error &&
+                    e.message.includes('unknown revision or path not in the working tree')) {
+                    core.setFailed(`Unable to locate ${targetBranch}, ensure "fetch-depth: 0" is in action checkout configuration`);
+                    return;
+                }
+                core.setFailed(e instanceof Error ? e.message : 'Unknown error');
+                return;
+            }
             // const ms: string = core.getInput('milliseconds')
             // core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
             //
