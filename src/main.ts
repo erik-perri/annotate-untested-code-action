@@ -3,6 +3,7 @@ import * as fs from 'fs'
 import CoverageFormat from './enum/coverage-format'
 import DiffParser from './git/diff-parser'
 import {execSync} from 'child_process'
+import getDiff from './git/get-diff'
 
 async function run(): Promise<void> {
   try {
@@ -38,28 +39,17 @@ async function run(): Promise<void> {
     const targetBranch = process.env.GITHUB_BASE_REF
     // const pullBranch = process.env.GITHUB_HEAD_REF
 
-    try {
-      const gitOutput = execSync(
-        `git diff --unified=0 origin/${targetBranch}`
-      ).toString()
-
-      const modifiedLines = new DiffParser().getModifiedLines(gitOutput)
-
-      core.info(`modifiedLines ${JSON.stringify(modifiedLines)}`)
-    } catch (e) {
-      if (
-        e instanceof Error &&
-        e.message.includes('unknown revision or path not in the working tree')
-      ) {
-        core.setFailed(
-          `Unable to locate ${targetBranch}, ensure "fetch-depth: 0" is in action checkout configuration`
-        )
-        return
-      }
-
-      core.setFailed(e instanceof Error ? e.message : 'Unknown error')
+    if (!targetBranch) {
+      core.setFailed(
+        `Unable to determine target branch to compare against, missing GITHUB_BASE_REF env variable`
+      )
       return
     }
+
+    const gitOutput = getDiff(targetBranch)
+    const modifiedLines = new DiffParser().getModifiedLines(gitOutput)
+
+    core.info(`modifiedLines ${JSON.stringify(modifiedLines)}`)
 
     // const ms: string = core.getInput('milliseconds')
     // core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true

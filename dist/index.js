@@ -63,6 +63,32 @@ exports["default"] = DiffParser;
 
 /***/ }),
 
+/***/ 25:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const child_process_1 = __nccwpck_require__(81);
+function getDiff(targetBranch) {
+    try {
+        return (0, child_process_1.execSync)(`git diff --unified=0 origin/${targetBranch}`).toString();
+    }
+    catch (e) {
+        if (e instanceof Error &&
+            e.message.includes('unknown revision or path not in the working tree')) {
+            throw new Error(`Unable to locate ${targetBranch}, ensure "fetch-depth: 0" is in action checkout configuration`);
+        }
+        else {
+            throw e;
+        }
+    }
+}
+exports["default"] = getDiff;
+
+
+/***/ }),
+
 /***/ 109:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -104,7 +130,7 @@ const core = __importStar(__nccwpck_require__(186));
 const fs = __importStar(__nccwpck_require__(147));
 const coverage_format_1 = __importDefault(__nccwpck_require__(327));
 const diff_parser_1 = __importDefault(__nccwpck_require__(110));
-const child_process_1 = __nccwpck_require__(81);
+const get_diff_1 = __importDefault(__nccwpck_require__(25));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -127,20 +153,13 @@ function run() {
             core.info(`process.env ${JSON.stringify(process.env)}`);
             const targetBranch = process.env.GITHUB_BASE_REF;
             // const pullBranch = process.env.GITHUB_HEAD_REF
-            try {
-                const gitOutput = (0, child_process_1.execSync)(`git diff --unified=0 origin/${targetBranch}`).toString();
-                const modifiedLines = new diff_parser_1.default().getModifiedLines(gitOutput);
-                core.info(`modifiedLines ${JSON.stringify(modifiedLines)}`);
-            }
-            catch (e) {
-                if (e instanceof Error &&
-                    e.message.includes('unknown revision or path not in the working tree')) {
-                    core.setFailed(`Unable to locate ${targetBranch}, ensure "fetch-depth: 0" is in action checkout configuration`);
-                    return;
-                }
-                core.setFailed(e instanceof Error ? e.message : 'Unknown error');
+            if (!targetBranch) {
+                core.setFailed(`Unable to determine target branch to compare against, missing GITHUB_BASE_REF env variable`);
                 return;
             }
+            const gitOutput = (0, get_diff_1.default)(targetBranch);
+            const modifiedLines = new diff_parser_1.default().getModifiedLines(gitOutput);
+            core.info(`modifiedLines ${JSON.stringify(modifiedLines)}`);
             // const ms: string = core.getInput('milliseconds')
             // core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
             //
