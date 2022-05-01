@@ -23,7 +23,8 @@ async function run(): Promise<void> {
       return
     }
 
-    core.debug(`check ${coveragePath} for coverage files in format ${format}`)
+    core.info(`check ${coveragePath} for coverage files in format ${format}`)
+    core.info(`state ${core.getState('github.event.release.target_commitish')}`)
     // const ms: string = core.getInput('milliseconds')
     // core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
     //
