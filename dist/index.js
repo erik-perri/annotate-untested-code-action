@@ -70,8 +70,7 @@ function run() {
                 return;
             }
             core.info(`check ${coveragePath} for coverage files in format ${format}`);
-            core.info(`state ${core.getState('github.event.release.target_commitish')}`);
-            throw new Error('Testing');
+            core.info(JSON.stringify(process.env));
             // const ms: string = core.getInput('milliseconds')
             // core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
             //
