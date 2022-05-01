@@ -15,54 +15,6 @@ exports["default"] = CoverageFormat;
 
 /***/ }),
 
-/***/ 110:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-class DiffParser {
-    getModifiedLines(gitDiffReport) {
-        const modifiedLines = [];
-        let lastFile;
-        let lastLine;
-        const diffLines = gitDiffReport.replace(/\r/, '').split(/\n/);
-        for (const line of diffLines) {
-            if (line.startsWith('---')) {
-                continue;
-            }
-            if (line.startsWith('+++')) {
-                lastFile = line.replace(/^\+\+\+\s(b\/)?/, '');
-            }
-            else if (line.startsWith('@@')) {
-                const match = /^@@ -\d+(,\d+)? \+(\d+)(,\d+)? @@/.exec(line);
-                const matchedLine = match === null || match === void 0 ? void 0 : match.at(2);
-                if (!matchedLine) {
-                    throw new Error(`Failed to parse line "${line}"`);
-                }
-                lastLine = parseInt(matchedLine, 10);
-            }
-            else if (/^[-+]/.test(line)) {
-                if (lastFile === undefined || lastLine === undefined) {
-                    throw new Error(`Found unexpected input before determining path and line "${line}"`);
-                }
-                modifiedLines.push({
-                    file: lastFile,
-                    line: lastLine
-                });
-                if (!line.startsWith('-')) {
-                    lastLine++;
-                }
-            }
-        }
-        return modifiedLines;
-    }
-}
-exports["default"] = DiffParser;
-
-
-/***/ }),
-
 /***/ 25:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -85,6 +37,54 @@ function getDiff(targetBranch) {
     }
 }
 exports["default"] = getDiff;
+
+
+/***/ }),
+
+/***/ 129:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+class UnifiedDiffParser {
+    getModifiedLines(unifiedDiff) {
+        const modifiedLines = [];
+        let lastFilePath;
+        let lastLineNumber;
+        const diffLines = unifiedDiff.replace(/\r/, '').split(/\n/);
+        for (const line of diffLines) {
+            if (line.startsWith('---')) {
+                continue;
+            }
+            if (line.startsWith('+++')) {
+                lastFilePath = line.replace(/^\+\+\+\s(b\/)?/, '');
+            }
+            else if (line.startsWith('@@')) {
+                const match = /^@@ -\d+(,\d+)? \+(\d+)(,\d+)? @@/.exec(line);
+                const matchedLine = match === null || match === void 0 ? void 0 : match.at(2);
+                if (!matchedLine) {
+                    throw new Error(`Failed to parse line number from line "${line}"`);
+                }
+                lastLineNumber = parseInt(matchedLine, 10);
+            }
+            else if (/^[-+]/.test(line)) {
+                if (lastFilePath === undefined || lastLineNumber === undefined) {
+                    throw new Error(`Found early line change "${line}"`);
+                }
+                modifiedLines.push({
+                    file: lastFilePath,
+                    line: lastLineNumber
+                });
+                if (!line.startsWith('-')) {
+                    lastLineNumber++;
+                }
+            }
+        }
+        return modifiedLines;
+    }
+}
+exports["default"] = UnifiedDiffParser;
 
 
 /***/ }),
@@ -129,7 +129,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
 const fs = __importStar(__nccwpck_require__(147));
 const coverage_format_1 = __importDefault(__nccwpck_require__(327));
-const diff_parser_1 = __importDefault(__nccwpck_require__(110));
+const unified_diff_parser_1 = __importDefault(__nccwpck_require__(129));
 const get_diff_1 = __importDefault(__nccwpck_require__(25));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -158,7 +158,7 @@ function run() {
                 return;
             }
             const gitOutput = (0, get_diff_1.default)(targetBranch);
-            const modifiedLines = new diff_parser_1.default().getModifiedLines(gitOutput);
+            const modifiedLines = new unified_diff_parser_1.default().getModifiedLines(gitOutput);
             core.info(`modifiedLines ${JSON.stringify(modifiedLines)}`);
             // const ms: string = core.getInput('milliseconds')
             // core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true

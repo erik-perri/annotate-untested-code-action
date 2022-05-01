@@ -1,8 +1,7 @@
 import * as core from '@actions/core'
 import * as fs from 'fs'
 import CoverageFormat from './enum/coverage-format'
-import DiffParser from './git/diff-parser'
-import {execSync} from 'child_process'
+import UnifiedDiffParser from './git/unified-diff-parser'
 import getDiff from './git/get-diff'
 
 async function run(): Promise<void> {
@@ -47,7 +46,7 @@ async function run(): Promise<void> {
     }
 
     const gitOutput = getDiff(targetBranch)
-    const modifiedLines = new DiffParser().getModifiedLines(gitOutput)
+    const modifiedLines = new UnifiedDiffParser().getModifiedLines(gitOutput)
 
     core.info(`modifiedLines ${JSON.stringify(modifiedLines)}`)
 
