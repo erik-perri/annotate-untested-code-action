@@ -59,7 +59,11 @@ async function run(): Promise<void> {
             uncoveredLine.line === modifiedLine.line
         )
       ) {
-        core.warning(`${modifiedLine.file}:${modifiedLine.line} Uncovered`)
+        core.warning(`Uncovered by tests`, {
+          file: modifiedLine.file,
+          startLine: modifiedLine.line,
+          endLine: modifiedLine.line
+        })
       }
     }
   } catch (error) {

@@ -282,7 +282,11 @@ function run() {
             for (const modifiedLine of modifiedLines) {
                 if (uncoveredLines.find(uncoveredLine => uncoveredLine.file.endsWith(modifiedLine.file) &&
                     uncoveredLine.line === modifiedLine.line)) {
-                    core.warning(`${modifiedLine.file}:${modifiedLine.line} Uncovered`);
+                    core.warning(`Uncovered by tests`, {
+                        file: modifiedLine.file,
+                        startLine: modifiedLine.line,
+                        endLine: modifiedLine.line
+                    });
                 }
             }
         }
