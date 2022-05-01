@@ -36,11 +36,11 @@ async function run(): Promise<void> {
     core.info(`process.env ${JSON.stringify(process.env)}`)
 
     const targetBranch = process.env.GITHUB_BASE_REF
-    const pullBranch = process.env.GITHUB_HEAD_REF
+    // const pullBranch = process.env.GITHUB_HEAD_REF
 
     try {
       const gitOutput = execSync(
-        `git diff --unified=0 origin/${targetBranch} ${pullBranch}`
+        `git diff --unified=0 origin/${targetBranch}`
       ).toString()
 
       const modifiedLines = new DiffParser().getModifiedLines(gitOutput)

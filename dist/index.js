@@ -126,9 +126,9 @@ function run() {
             core.info(`check ${coveragePath} for coverage files in format ${format}`);
             core.info(`process.env ${JSON.stringify(process.env)}`);
             const targetBranch = process.env.GITHUB_BASE_REF;
-            const pullBranch = process.env.GITHUB_HEAD_REF;
+            // const pullBranch = process.env.GITHUB_HEAD_REF
             try {
-                const gitOutput = (0, child_process_1.execSync)(`git diff --unified=0 origin/${targetBranch} ${pullBranch}`).toString();
+                const gitOutput = (0, child_process_1.execSync)(`git diff --unified=0 origin/${targetBranch}`).toString();
                 const modifiedLines = new diff_parser_1.default().getModifiedLines(gitOutput);
                 core.info(`modifiedLines ${JSON.stringify(modifiedLines)}`);
             }
