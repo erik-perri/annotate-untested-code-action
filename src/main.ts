@@ -50,6 +50,18 @@ async function run(): Promise<void> {
 
     core.info(`modifiedLines ${JSON.stringify(modifiedLines, null, 2)}`)
     core.info(`uncoveredLines ${JSON.stringify(uncoveredLines, null, 2)}`)
+
+    for (const modifiedLine of modifiedLines) {
+      if (
+        uncoveredLines.find(
+          uncoveredLine =>
+            uncoveredLine.file.endsWith(modifiedLine.file) &&
+            uncoveredLine.line === modifiedLine.line
+        )
+      ) {
+        core.warning(`${modifiedLine.file}:${modifiedLine.line} Uncovered`)
+      }
+    }
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message)
