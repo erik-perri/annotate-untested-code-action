@@ -1,5 +1,5 @@
 const CoverageFormat = Object.freeze({
-  PhpunitXml: 'phpunit-xml'
+  CloverXml: 'clover-xml'
 })
 
 export default CoverageFormat

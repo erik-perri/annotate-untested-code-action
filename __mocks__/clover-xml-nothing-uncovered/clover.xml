@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1651370873">
+  <project timestamp="1651370873">
+    <file name="/mnt/d/Development/JS/untested-code-annotations-testing/src/TestedClass.php">
+      <class name="App\TestedClass" namespace="global">
+        <metrics complexity="3" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="4" coveredstatements="4" elements="6" coveredelements="6"/>
+      </class>
+      <line num="9" type="method" name="methodOne" visibility="public" complexity="1" crap="1" count="1"/>
+      <line num="11" type="stmt" count="1"/>
+      <line num="14" type="method" name="methodTwo" visibility="public" complexity="2" crap="2" count="2"/>
+      <line num="16" type="stmt" count="2"/>
+      <line num="17" type="stmt" count="1"/>
+      <line num="19" type="stmt" count="1"/>
+      <metrics loc="23" ncloc="23" classes="1" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="4" coveredstatements="4" elements="6" coveredelements="6"/>
+    </file>
+    <metrics files="1" loc="23" ncloc="23" classes="1" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="4" coveredstatements="4" elements="6" coveredelements="6"/>
+  </project>
+</coverage>
