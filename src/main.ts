@@ -32,18 +32,19 @@ async function run(): Promise<void> {
       return
     }
 
+    core.info(`check ${coveragePath} for coverage files in format ${format}`)
+    core.info(`process.env ${JSON.stringify(process.env)}`)
+
     const targetBranch = process.env.GITHUB_BASE_REF
-    // const pullBranch = process.env.GITHUB_HEAD_REF
+    const pullBranch = process.env.GITHUB_HEAD_REF
 
     const gitOutput = execSync(
-      `git diff --unified=0 ${targetBranch}`
+      `git diff --unified=0 origin/${targetBranch} ${pullBranch}`
     ).toString()
 
     const modifiedLines = new DiffParser().getModifiedLines(gitOutput)
 
-    core.info(`check ${coveragePath} for coverage files in format ${format}`)
     core.info(`modifiedLines ${JSON.stringify(modifiedLines)}`)
-    core.info(`process.env ${JSON.stringify(process.env)}`)
 
     // const ms: string = core.getInput('milliseconds')
     // core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true

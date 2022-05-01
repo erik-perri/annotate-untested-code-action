@@ -123,13 +123,13 @@ function run() {
                 core.setFailed(`Invalid event "${process.env.GITHUB_EVENT_NAME}", this should only run on "pull_request"`);
                 return;
             }
-            const targetBranch = process.env.GITHUB_BASE_REF;
-            // const pullBranch = process.env.GITHUB_HEAD_REF
-            const gitOutput = (0, child_process_1.execSync)(`git diff --unified=0 ${targetBranch}`).toString();
-            const modifiedLines = new diff_parser_1.default().getModifiedLines(gitOutput);
             core.info(`check ${coveragePath} for coverage files in format ${format}`);
-            core.info(`modifiedLines ${JSON.stringify(modifiedLines)}`);
             core.info(`process.env ${JSON.stringify(process.env)}`);
+            const targetBranch = process.env.GITHUB_BASE_REF;
+            const pullBranch = process.env.GITHUB_HEAD_REF;
+            const gitOutput = (0, child_process_1.execSync)(`git diff --unified=0 origin/${targetBranch} ${pullBranch}`).toString();
+            const modifiedLines = new diff_parser_1.default().getModifiedLines(gitOutput);
+            core.info(`modifiedLines ${JSON.stringify(modifiedLines)}`);
             // const ms: string = core.getInput('milliseconds')
             // core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
             //
