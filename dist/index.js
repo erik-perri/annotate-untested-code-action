@@ -279,6 +279,12 @@ function run() {
             const uncoveredLines = yield (0, get_uncovered_lines_1.default)(format, coveragePath);
             core.info(`modifiedLines ${JSON.stringify(modifiedLines, null, 2)}`);
             core.info(`uncoveredLines ${JSON.stringify(uncoveredLines, null, 2)}`);
+            for (const modifiedLine of modifiedLines) {
+                if (uncoveredLines.find(uncoveredLine => uncoveredLine.file.endsWith(modifiedLine.file) &&
+                    uncoveredLine.line === modifiedLine.line)) {
+                    core.warning(`${modifiedLine.file}:${modifiedLine.line} Uncovered`);
+                }
+            }
         }
         catch (error) {
             if (error instanceof Error) {
