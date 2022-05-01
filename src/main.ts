@@ -1,8 +1,8 @@
 import * as core from '@actions/core'
 import * as fs from 'fs'
 import CoverageFormat from './enum/coverage-format'
-import UnifiedDiffParser from './git/unified-diff-parser'
-import getDiff from './git/get-diff'
+import getModifiedFiles from './git/get-diff'
+import getUncoveredLines from './coverage-handler/get-uncovered-lines'
 
 async function run(): Promise<void> {
   try {
@@ -45,19 +45,11 @@ async function run(): Promise<void> {
       return
     }
 
-    const gitOutput = getDiff(targetBranch)
-    const modifiedLines = new UnifiedDiffParser().getModifiedLines(gitOutput)
+    const modifiedLines = getModifiedFiles(targetBranch)
+    const uncoveredLines = await getUncoveredLines(format, coveragePath)
 
-    core.info(`modifiedLines ${JSON.stringify(modifiedLines)}`)
-
-    // const ms: string = core.getInput('milliseconds')
-    // core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
-    //
-    // core.debug(new Date().toTimeString())
-    // await wait(parseInt(ms, 10))
-    // core.debug(new Date().toTimeString())
-    //
-    // core.setOutput('time', new Date().toTimeString())
+    core.info(`modifiedLines ${JSON.stringify(modifiedLines, null, 2)}`)
+    core.info(`uncoveredLines ${JSON.stringify(uncoveredLines, null, 2)}`)
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message)

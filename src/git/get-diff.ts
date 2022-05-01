@@ -1,6 +1,8 @@
+import {Line} from '../types'
+import UnifiedDiffParser from './unified-diff-parser'
 import {execSync} from 'child_process'
 
-function getDiff(targetBranch: string): string {
+function getUnifiedDiff(targetBranch: string): string {
   try {
     return execSync(`git diff --unified=0 origin/${targetBranch}`).toString()
   } catch (e) {
@@ -17,4 +19,8 @@ function getDiff(targetBranch: string): string {
   }
 }
 
-export default getDiff
+function getModifiedFiles(targetBranch: string): Line[] {
+  return new UnifiedDiffParser().getModifiedLines(getUnifiedDiff(targetBranch))
+}
+
+export default getModifiedFiles
