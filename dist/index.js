@@ -120,7 +120,7 @@ function run() {
                 return;
             }
             if (process.env.GITHUB_EVENT_NAME !== 'pull_request') {
-                core.setFailed(`Invalid event "${process.env.GITHUB_EVENT_NAME}", this should only run on "pull_request"`);
+                core.warning(`Invalid event "${process.env.GITHUB_EVENT_NAME}", this should only run on "pull_request"`);
                 return;
             }
             core.info(`check ${coveragePath} for coverage files in format ${format}`);

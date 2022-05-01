@@ -26,7 +26,7 @@ async function run(): Promise<void> {
     }
 
     if (process.env.GITHUB_EVENT_NAME !== 'pull_request') {
-      core.setFailed(
+      core.warning(
         `Invalid event "${process.env.GITHUB_EVENT_NAME}", this should only run on "pull_request"`
       )
       return
