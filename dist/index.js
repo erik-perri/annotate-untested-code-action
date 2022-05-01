@@ -126,7 +126,7 @@ exports["default"] = CoverageFormat;
 
 /***/ }),
 
-/***/ 8025:
+/***/ 4449:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -247,7 +247,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const fs = __importStar(__nccwpck_require__(7147));
 const coverage_format_1 = __importDefault(__nccwpck_require__(327));
-const get_diff_1 = __importDefault(__nccwpck_require__(8025));
+const get_modified_lines_1 = __importDefault(__nccwpck_require__(4449));
 const get_uncovered_lines_1 = __importDefault(__nccwpck_require__(9656));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -275,7 +275,7 @@ function run() {
                 core.setFailed(`Unable to determine target branch to compare against, missing GITHUB_BASE_REF env variable`);
                 return;
             }
-            const modifiedLines = (0, get_diff_1.default)(targetBranch);
+            const modifiedLines = (0, get_modified_lines_1.default)(targetBranch);
             const uncoveredLines = yield (0, get_uncovered_lines_1.default)(format, coveragePath);
             core.info(`modifiedLines ${JSON.stringify(modifiedLines, null, 2)}`);
             core.info(`uncoveredLines ${JSON.stringify(uncoveredLines, null, 2)}`);

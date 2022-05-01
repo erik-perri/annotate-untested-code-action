@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as fs from 'fs'
 import CoverageFormat from './enum/coverage-format'
-import getModifiedFiles from './git/get-diff'
+import getModifiedFiles from './git/get-modified-lines'
 import getUncoveredLines from './coverage-handler/get-uncovered-lines'
 
 async function run(): Promise<void> {
