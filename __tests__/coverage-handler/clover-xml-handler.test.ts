@@ -19,7 +19,7 @@ describe('CloverXmlHandler', () => {
       )
     ).toEqual([
       {
-        file: '/untested-code-annotations-testing/src/PartiallyTestedClass.php',
+        file: '/annotate-untested-code-testing/src/PartiallyTestedClass.php',
         line: 19
       }
     ])

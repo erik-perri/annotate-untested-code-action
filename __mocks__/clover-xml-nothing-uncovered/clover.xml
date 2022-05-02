@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <coverage generated="1651370873">
   <project timestamp="1651370873">
-    <file name="/mnt/d/Development/JS/untested-code-annotations-testing/src/TestedClass.php">
+    <file name="/mnt/d/Development/JS/annotate-untested-code-testing/src/TestedClass.php">
       <class name="App\TestedClass" namespace="global">
         <metrics complexity="3" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="4" coveredstatements="4" elements="6" coveredelements="6"/>
       </class>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <coverage generated="1651370910">
   <project timestamp="1651370910">
-    <file name="/untested-code-annotations-testing/src/PartiallyTestedClass.php">
+    <file name="/annotate-untested-code-testing/src/PartiallyTestedClass.php">
       <class name="App\PartiallyTestedClass" namespace="global">
         <metrics complexity="3" methods="2" coveredmethods="1" conditionals="0" coveredconditionals="0" statements="4" coveredstatements="3" elements="6" coveredelements="4"/>
       </class>
@@ -13,7 +13,7 @@
       <line num="19" type="stmt" count="0"/>
       <metrics loc="23" ncloc="23" classes="1" methods="2" coveredmethods="1" conditionals="0" coveredconditionals="0" statements="4" coveredstatements="3" elements="6" coveredelements="4"/>
     </file>
-    <file name="/untested-code-annotations-testing/src/TestedClass.php">
+    <file name="/annotate-untested-code-testing/src/TestedClass.php">
       <class name="App\TestedClass" namespace="global">
         <metrics complexity="3" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="4" coveredstatements="4" elements="6" coveredelements="6"/>
       </class>
