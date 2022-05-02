@@ -24,4 +24,4 @@ jobs:
       - uses: ./
         with:
           format: clover-xml
-          coverage-path: __mocks__/clover-xml-nothing-uncovered
+          coverage-path: __mocks__/clover-xml-nothing-uncovered/clover.xml
