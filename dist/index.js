@@ -64,13 +64,34 @@ class CloverXmlHandler {
         const uncovered = [];
         for (const file of project.file) {
             const fileName = file.$.name;
+            let groupStart = undefined;
+            let groupEnd = undefined;
             for (const line of file.line) {
                 if (line.$.count === '0') {
-                    uncovered.push({
-                        file: fileName,
-                        line: parseInt(line.$.num, 10)
-                    });
+                    const lineNumber = parseInt(line.$.num, 10);
+                    if (groupStart !== undefined &&
+                        groupEnd !== undefined &&
+                        lineNumber - groupEnd > 1) {
+                        uncovered.push({
+                            file: fileName,
+                            startLine: groupStart,
+                            endLine: groupEnd
+                        });
+                        groupStart = undefined;
+                        groupEnd = undefined;
+                    }
+                    groupStart !== null && groupStart !== void 0 ? groupStart : (groupStart = lineNumber);
+                    groupEnd = lineNumber;
                 }
+            }
+            if (groupStart !== undefined && groupEnd !== undefined) {
+                uncovered.push({
+                    file: fileName,
+                    startLine: groupStart,
+                    endLine: groupEnd
+                });
+                groupStart = undefined;
+                groupEnd = undefined;
             }
         }
         return uncovered;
@@ -287,13 +308,15 @@ function run() {
             const uncoveredLines = yield (0, get_uncovered_lines_1.default)(format, coveragePath);
             core.info(`modifiedLines ${JSON.stringify(modifiedLines, null, 2)}`);
             core.info(`uncoveredLines ${JSON.stringify(uncoveredLines, null, 2)}`);
-            for (const modifiedLine of modifiedLines) {
-                if (uncoveredLines.find(uncoveredLine => uncoveredLine.file.endsWith(modifiedLine.file) &&
-                    uncoveredLine.line === modifiedLine.line)) {
+            for (const uncoveredLine of uncoveredLines) {
+                const modifiedLine = modifiedLines.find(line => uncoveredLine.file.endsWith(line.file) &&
+                    uncoveredLine.startLine >= line.line &&
+                    uncoveredLine.endLine <= line.line);
+                if (modifiedLine) {
                     core.warning(`Uncovered by tests`, {
                         file: modifiedLine.file,
-                        startLine: modifiedLine.line,
-                        endLine: modifiedLine.line
+                        startLine: uncoveredLine.startLine,
+                        endLine: uncoveredLine.endLine
                     });
                 }
             }

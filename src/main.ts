@@ -51,18 +51,19 @@ async function run(): Promise<void> {
     core.info(`modifiedLines ${JSON.stringify(modifiedLines, null, 2)}`)
     core.info(`uncoveredLines ${JSON.stringify(uncoveredLines, null, 2)}`)
 
-    for (const modifiedLine of modifiedLines) {
-      if (
-        uncoveredLines.find(
-          uncoveredLine =>
-            uncoveredLine.file.endsWith(modifiedLine.file) &&
-            uncoveredLine.line === modifiedLine.line
-        )
-      ) {
+    for (const uncoveredLine of uncoveredLines) {
+      const modifiedLine = modifiedLines.find(
+        line =>
+          uncoveredLine.file.endsWith(line.file) &&
+          uncoveredLine.startLine >= line.line &&
+          uncoveredLine.endLine <= line.line
+      )
+
+      if (modifiedLine) {
         core.warning(`Uncovered by tests`, {
           file: modifiedLine.file,
-          startLine: modifiedLine.line,
-          endLine: modifiedLine.line
+          startLine: uncoveredLine.startLine,
+          endLine: uncoveredLine.endLine
         })
       }
     }

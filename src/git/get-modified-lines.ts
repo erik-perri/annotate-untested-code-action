@@ -1,4 +1,4 @@
-import {Line} from '../types'
+import {Line} from './types'
 import UnifiedDiffParser from './unified-diff-parser'
 import {execSync} from 'child_process'
 

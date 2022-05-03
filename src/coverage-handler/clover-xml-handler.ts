@@ -1,7 +1,6 @@
 import * as fs from 'fs'
 import * as xml2js from 'xml2js'
-import Handler from './handler'
-import {Line} from '../types'
+import {Types, UncoveredLineGroup} from './types'
 
 interface CloverLine {
   $: {
@@ -27,13 +26,13 @@ interface CloverIndex {
   }
 }
 
-class CloverXmlHandler implements Handler {
-  async getUncoveredLines(coveragePath: string): Promise<Line[]> {
+class CloverXmlHandler implements Types {
+  async getUncoveredLines(coveragePath: string): Promise<UncoveredLineGroup[]> {
     if (!fs.existsSync(coveragePath)) {
       throw new Error(`Invalid coverage path, "${coveragePath}" not found.`)
     }
 
-    const uncovered: Line[] = []
+    const uncovered: UncoveredLineGroup[] = []
     const parsed: CloverIndex = await xml2js.parseStringPromise(
       fs.readFileSync(coveragePath)
     )
@@ -52,18 +51,49 @@ class CloverXmlHandler implements Handler {
     return uncovered
   }
 
-  private static getUncoveredFromProject(project: CloverProject): Line[] {
-    const uncovered = []
+  private static getUncoveredFromProject(
+    project: CloverProject
+  ): UncoveredLineGroup[] {
+    const uncovered: UncoveredLineGroup[] = []
 
     for (const file of project.file) {
       const fileName: string = file.$.name
+      let groupStart: number | undefined = undefined
+      let groupEnd: number | undefined = undefined
+
       for (const line of file.line) {
         if (line.$.count === '0') {
-          uncovered.push({
-            file: fileName,
-            line: parseInt(line.$.num, 10)
-          })
+          const lineNumber = parseInt(line.$.num, 10)
+
+          if (
+            groupStart !== undefined &&
+            groupEnd !== undefined &&
+            lineNumber - groupEnd > 1
+          ) {
+            uncovered.push({
+              file: fileName,
+              startLine: groupStart,
+              endLine: groupEnd
+            })
+
+            groupStart = undefined
+            groupEnd = undefined
+          }
+
+          groupStart ??= lineNumber
+          groupEnd = lineNumber
         }
+      }
+
+      if (groupStart !== undefined && groupEnd !== undefined) {
+        uncovered.push({
+          file: fileName,
+          startLine: groupStart,
+          endLine: groupEnd
+        })
+
+        groupStart = undefined
+        groupEnd = undefined
       }
     }
 

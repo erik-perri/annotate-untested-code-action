@@ -1,4 +1,4 @@
-import {Line} from '../types'
+import {Line} from './types'
 
 class UnifiedDiffParser {
   getModifiedLines(unifiedDiff: string): Line[] {
