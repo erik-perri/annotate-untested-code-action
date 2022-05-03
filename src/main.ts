@@ -55,8 +55,8 @@ async function run(): Promise<void> {
       const modifiedLine = modifiedLines.find(
         line =>
           uncoveredLine.file.endsWith(line.file) &&
-          uncoveredLine.startLine >= line.line &&
-          uncoveredLine.endLine <= line.line
+          uncoveredLine.startLine <= line.line &&
+          uncoveredLine.endLine >= line.line
       )
 
       if (modifiedLine) {

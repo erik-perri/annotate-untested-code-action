@@ -310,8 +310,8 @@ function run() {
             core.info(`uncoveredLines ${JSON.stringify(uncoveredLines, null, 2)}`);
             for (const uncoveredLine of uncoveredLines) {
                 const modifiedLine = modifiedLines.find(line => uncoveredLine.file.endsWith(line.file) &&
-                    uncoveredLine.startLine >= line.line &&
-                    uncoveredLine.endLine <= line.line);
+                    uncoveredLine.startLine <= line.line &&
+                    uncoveredLine.endLine >= line.line);
                 if (modifiedLine) {
                     core.warning(`Uncovered by tests`, {
                         file: modifiedLine.file,
