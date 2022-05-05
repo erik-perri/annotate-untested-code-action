@@ -1,14 +1,12 @@
 import {describe, expect, it, test} from '@jest/globals'
-import UnifiedDiffParser from '../../src/git/unified-diff-parser'
+import {getModifiedLinesFromUnifiedDiff} from '../../src/git/get-modified-lines'
 
 describe('DiffParser', () => {
   it('returns an empty array on empty input', async () => {
-    const parser = new UnifiedDiffParser()
-    await expect(parser.getModifiedLines('')).toEqual([])
+    await expect(getModifiedLinesFromUnifiedDiff('')).toEqual([])
   })
 
   it('parses a basic addition', async () => {
-    const parser = new UnifiedDiffParser()
     const diff =
       'diff --git a/src/TestedClass.php b/src/TestedClass.php\n' +
       'index f119f84..e4a60ed 100644\n' +
@@ -21,7 +19,7 @@ describe('DiffParser', () => {
       '+        return 4;\n' +
       '+    }'
 
-    await expect(parser.getModifiedLines(diff)).toEqual([
+    await expect(getModifiedLinesFromUnifiedDiff(diff)).toEqual([
       {file: 'src/TestedClass.php', line: 22},
       {file: 'src/TestedClass.php', line: 23},
       {file: 'src/TestedClass.php', line: 24},
