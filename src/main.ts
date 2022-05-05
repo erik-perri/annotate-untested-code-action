@@ -60,7 +60,7 @@ async function run(): Promise<void> {
       )
 
       if (modifiedLine) {
-        core.warning(`Uncovered by tests`, {
+        core.warning(uncoveredLine.message ?? `Uncovered by tests`, {
           file: modifiedLine.file,
           startLine: uncoveredLine.startLine,
           endLine: uncoveredLine.endLine
