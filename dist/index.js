@@ -41,63 +41,59 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const fs = __importStar(__nccwpck_require__(7147));
 const xml2js = __importStar(__nccwpck_require__(6189));
-class CloverXmlHandler {
-    getUncoveredLines(coveragePath) {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!fs.existsSync(coveragePath)) {
-                throw new Error(`Invalid coverage path, "${coveragePath}" not found.`);
-            }
-            const uncovered = [];
-            const parsed = yield xml2js.parseStringPromise(fs.readFileSync(coveragePath));
-            const projects = (_a = parsed === null || parsed === void 0 ? void 0 : parsed.coverage) === null || _a === void 0 ? void 0 : _a.project;
-            if (!projects || !Array.isArray(projects)) {
-                throw new Error(`Unexpected Clover format encountered, expected coverage>project[]`);
-            }
-            for (const project of projects) {
-                uncovered.push(...CloverXmlHandler.getUncoveredFromProject(project));
-            }
-            return uncovered;
-        });
-    }
-    static getUncoveredFromProject(project) {
-        const uncovered = [];
-        for (const file of project.file) {
-            const fileName = file.$.name;
-            let groupStart = undefined;
-            let groupEnd = undefined;
-            for (const line of file.line) {
-                if (line.$.count === '0') {
-                    const lineNumber = parseInt(line.$.num, 10);
-                    if (groupStart !== undefined &&
-                        groupEnd !== undefined &&
-                        lineNumber - groupEnd > 1) {
-                        uncovered.push({
-                            file: fileName,
-                            startLine: groupStart,
-                            endLine: groupEnd
-                        });
-                        groupStart = undefined;
-                        groupEnd = undefined;
-                    }
-                    groupStart !== null && groupStart !== void 0 ? groupStart : (groupStart = lineNumber);
-                    groupEnd = lineNumber;
+function getUncoveredFromProject(project) {
+    const uncovered = [];
+    for (const file of project.file) {
+        const fileName = file.$.name;
+        let groupStart = undefined;
+        let groupEnd = undefined;
+        for (const line of file.line) {
+            if (line.$.count === '0') {
+                const lineNumber = parseInt(line.$.num, 10);
+                if (groupStart !== undefined &&
+                    groupEnd !== undefined &&
+                    lineNumber - groupEnd > 1) {
+                    uncovered.push({
+                        file: fileName,
+                        startLine: groupStart,
+                        endLine: groupEnd
+                    });
+                    groupStart = undefined;
+                    groupEnd = undefined;
                 }
-            }
-            if (groupStart !== undefined && groupEnd !== undefined) {
-                uncovered.push({
-                    file: fileName,
-                    startLine: groupStart,
-                    endLine: groupEnd
-                });
-                groupStart = undefined;
-                groupEnd = undefined;
+                groupStart !== null && groupStart !== void 0 ? groupStart : (groupStart = lineNumber);
+                groupEnd = lineNumber;
             }
         }
-        return uncovered;
+        if (groupStart !== undefined && groupEnd !== undefined) {
+            uncovered.push({
+                file: fileName,
+                startLine: groupStart,
+                endLine: groupEnd
+            });
+            groupStart = undefined;
+            groupEnd = undefined;
+        }
     }
+    return uncovered;
 }
-exports["default"] = CloverXmlHandler;
+const getUncoveredLinesFromClover = (coveragePath) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    if (!fs.existsSync(coveragePath)) {
+        throw new Error(`Invalid coverage path, "${coveragePath}" not found.`);
+    }
+    const uncovered = [];
+    const parsed = yield xml2js.parseStringPromise(fs.readFileSync(coveragePath));
+    const projects = (_a = parsed === null || parsed === void 0 ? void 0 : parsed.coverage) === null || _a === void 0 ? void 0 : _a.project;
+    if (!projects || !Array.isArray(projects)) {
+        throw new Error(`Unexpected Clover format encountered, expected coverage>project[]`);
+    }
+    for (const project of projects) {
+        uncovered.push(...getUncoveredFromProject(project));
+    }
+    return uncovered;
+});
+exports["default"] = getUncoveredLinesFromClover;
 
 
 /***/ }),
@@ -126,7 +122,7 @@ function getUncoveredLines(handler, coveragePath) {
     return __awaiter(this, void 0, void 0, function* () {
         switch (handler) {
             case coverage_format_1.default.CloverXml:
-                return yield new clover_xml_handler_1.default().getUncoveredLines(coveragePath);
+                return yield (0, clover_xml_handler_1.default)(coveragePath);
             default:
                 throw new Error(`Unknown coverage handler "${handler}"`);
         }
@@ -152,15 +148,12 @@ exports["default"] = CoverageFormat;
 /***/ }),
 
 /***/ 4449:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const unified_diff_parser_1 = __importDefault(__nccwpck_require__(129));
+exports.getModifiedLinesFromUnifiedDiff = void 0;
 const child_process_1 = __nccwpck_require__(2081);
 function getUnifiedDiff(targetBranch) {
     try {
@@ -176,58 +169,46 @@ function getUnifiedDiff(targetBranch) {
         }
     }
 }
-function getModifiedFiles(targetBranch) {
-    return new unified_diff_parser_1.default().getModifiedLines(getUnifiedDiff(targetBranch));
-}
-exports["default"] = getModifiedFiles;
-
-
-/***/ }),
-
-/***/ 129:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-class UnifiedDiffParser {
-    getModifiedLines(unifiedDiff) {
-        const modifiedLines = [];
-        let lastFilePath;
-        let lastLineNumber;
-        const diffLines = unifiedDiff.replace(/\r/, '').split(/\n/);
-        for (const line of diffLines) {
-            if (line.startsWith('---')) {
-                continue;
+function getModifiedLinesFromUnifiedDiff(unifiedDiff) {
+    const modifiedLines = [];
+    let lastFilePath;
+    let lastLineNumber;
+    const diffLines = unifiedDiff.replace(/\r/, '').split(/\n/);
+    for (const line of diffLines) {
+        if (line.startsWith('---')) {
+            continue;
+        }
+        if (line.startsWith('+++')) {
+            lastFilePath = line.replace(/^\+\+\+\s(b\/)?/, '');
+        }
+        else if (line.startsWith('@@')) {
+            const match = /^@@ -\d+(,\d+)? \+(\d+)(,\d+)? @@/.exec(line);
+            const matchedLine = match === null || match === void 0 ? void 0 : match.at(2);
+            if (!matchedLine) {
+                throw new Error(`Failed to parse line number from line "${line}"`);
             }
-            if (line.startsWith('+++')) {
-                lastFilePath = line.replace(/^\+\+\+\s(b\/)?/, '');
+            lastLineNumber = parseInt(matchedLine, 10);
+        }
+        else if (/^[-+]/.test(line)) {
+            if (lastFilePath === undefined || lastLineNumber === undefined) {
+                throw new Error(`Found early line change "${line}"`);
             }
-            else if (line.startsWith('@@')) {
-                const match = /^@@ -\d+(,\d+)? \+(\d+)(,\d+)? @@/.exec(line);
-                const matchedLine = match === null || match === void 0 ? void 0 : match.at(2);
-                if (!matchedLine) {
-                    throw new Error(`Failed to parse line number from line "${line}"`);
-                }
-                lastLineNumber = parseInt(matchedLine, 10);
-            }
-            else if (/^[-+]/.test(line)) {
-                if (lastFilePath === undefined || lastLineNumber === undefined) {
-                    throw new Error(`Found early line change "${line}"`);
-                }
-                modifiedLines.push({
-                    file: lastFilePath,
-                    line: lastLineNumber
-                });
-                if (!line.startsWith('-')) {
-                    lastLineNumber++;
-                }
+            modifiedLines.push({
+                file: lastFilePath,
+                line: lastLineNumber
+            });
+            if (!line.startsWith('-')) {
+                lastLineNumber++;
             }
         }
-        return modifiedLines;
     }
+    return modifiedLines;
 }
-exports["default"] = UnifiedDiffParser;
+exports.getModifiedLinesFromUnifiedDiff = getModifiedLinesFromUnifiedDiff;
+function getModifiedFiles(targetBranch) {
+    return getModifiedLinesFromUnifiedDiff(getUnifiedDiff(targetBranch));
+}
+exports["default"] = getModifiedFiles;
 
 
 /***/ }),
@@ -279,6 +260,7 @@ const coverage_format_1 = __importDefault(__nccwpck_require__(327));
 const get_modified_lines_1 = __importDefault(__nccwpck_require__(4449));
 const get_uncovered_lines_1 = __importDefault(__nccwpck_require__(9656));
 function run() {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const format = core.getInput('format');
@@ -313,7 +295,7 @@ function run() {
                     uncoveredLine.startLine <= line.line &&
                     uncoveredLine.endLine >= line.line);
                 if (modifiedLine) {
-                    core.warning(`Uncovered by tests`, {
+                    core.warning((_a = uncoveredLine.message) !== null && _a !== void 0 ? _a : `Uncovered by tests`, {
                         file: modifiedLine.file,
                         startLine: uncoveredLine.startLine,
                         endLine: uncoveredLine.endLine
