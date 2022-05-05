@@ -1,20 +1,20 @@
 import {describe, expect, it, test} from '@jest/globals'
-import CloverXmlHandler from '../../src/coverage-handler/clover-xml-handler'
+import getUncoveredLinesFromClover from '../../src/coverage-handler/clover-xml-handler'
 
-describe('CloverXmlHandler', () => {
+describe('getUncoveredLinesFromClover', () => {
   it('returns an empty array when nothing is uncovered', async () => {
-    const parser = new CloverXmlHandler()
     await expect(
-      await parser.getUncoveredLines(
+      await getUncoveredLinesFromClover(
         '__mocks__/clover-xml-nothing-uncovered.xml'
       )
     ).toEqual([])
   })
 
   it('returns the expected values when some lines are uncovered', async () => {
-    const parser = new CloverXmlHandler()
     await expect(
-      await parser.getUncoveredLines('__mocks__/clover-xml-some-uncovered.xml')
+      await getUncoveredLinesFromClover(
+        '__mocks__/clover-xml-some-uncovered.xml'
+      )
     ).toEqual([
       {
         file: '/annotate-untested-code-testing/src/PartiallyTestedClass.php',
@@ -25,9 +25,8 @@ describe('CloverXmlHandler', () => {
   })
 
   it('groups lines when multiple sequential lines are supplied', async () => {
-    const parser = new CloverXmlHandler()
     await expect(
-      await parser.getUncoveredLines(
+      await getUncoveredLinesFromClover(
         '__mocks__/clover-xml-group-of-uncovered.xml'
       )
     ).toEqual([

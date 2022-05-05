@@ -4,8 +4,6 @@ interface UncoveredLineGroup {
   endLine: number
 }
 
-interface Types {
-  getUncoveredLines(coveragePath: string): Promise<UncoveredLineGroup[]>
-}
+type GetUncoveredLines = (coveragePath: string) => Promise<UncoveredLineGroup[]>
 
-export {Types, UncoveredLineGroup}
+export {GetUncoveredLines, UncoveredLineGroup}
