@@ -1,6 +1,7 @@
 import * as fs from 'fs'
 import * as xml2js from 'xml2js'
 import {GetUncoveredLines, UncoveredLineGroup} from './types'
+import LineGrouper from './line-grouper'
 
 interface CloverLine {
   $: {
@@ -31,43 +32,21 @@ function getUncoveredFromProject(project: CloverProject): UncoveredLineGroup[] {
 
   for (const file of project.file) {
     const fileName: string = file.$.name
-    let groupStart: number | undefined = undefined
-    let groupEnd: number | undefined = undefined
+    const grouper: LineGrouper = new LineGrouper()
 
     for (const line of file.line) {
       if (line.$.count === '0') {
-        const lineNumber = parseInt(line.$.num, 10)
-
-        if (
-          groupStart !== undefined &&
-          groupEnd !== undefined &&
-          lineNumber - groupEnd > 1
-        ) {
-          uncovered.push({
-            file: fileName,
-            startLine: groupStart,
-            endLine: groupEnd
-          })
-
-          groupStart = undefined
-          groupEnd = undefined
-        }
-
-        groupStart ??= lineNumber
-        groupEnd = lineNumber
+        grouper.add(parseInt(line.$.num, 10))
       }
     }
 
-    if (groupStart !== undefined && groupEnd !== undefined) {
-      uncovered.push({
+    uncovered.push(
+      ...grouper.buildGroups().map(group => ({
         file: fileName,
-        startLine: groupStart,
-        endLine: groupEnd
-      })
-
-      groupStart = undefined
-      groupEnd = undefined
-    }
+        startLine: group.start,
+        endLine: group.end
+      }))
+    )
   }
 
   return uncovered
