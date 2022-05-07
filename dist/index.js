@@ -38,42 +38,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const fs = __importStar(__nccwpck_require__(7147));
 const xml2js = __importStar(__nccwpck_require__(6189));
+const line_grouper_1 = __importDefault(__nccwpck_require__(3103));
 function getUncoveredFromProject(project) {
     const uncovered = [];
     for (const file of project.file) {
         const fileName = file.$.name;
-        let groupStart = undefined;
-        let groupEnd = undefined;
+        const grouper = new line_grouper_1.default();
         for (const line of file.line) {
             if (line.$.count === '0') {
-                const lineNumber = parseInt(line.$.num, 10);
-                if (groupStart !== undefined &&
-                    groupEnd !== undefined &&
-                    lineNumber - groupEnd > 1) {
-                    uncovered.push({
-                        file: fileName,
-                        startLine: groupStart,
-                        endLine: groupEnd
-                    });
-                    groupStart = undefined;
-                    groupEnd = undefined;
-                }
-                groupStart !== null && groupStart !== void 0 ? groupStart : (groupStart = lineNumber);
-                groupEnd = lineNumber;
+                grouper.add(parseInt(line.$.num, 10));
             }
         }
-        if (groupStart !== undefined && groupEnd !== undefined) {
-            uncovered.push({
-                file: fileName,
-                startLine: groupStart,
-                endLine: groupEnd
-            });
-            groupStart = undefined;
-            groupEnd = undefined;
-        }
+        uncovered.push(...grouper.buildGroups().map(group => ({
+            file: fileName,
+            startLine: group.start,
+            endLine: group.end
+        })));
     }
     return uncovered;
 }
@@ -98,6 +84,91 @@ exports["default"] = getUncoveredLinesFromClover;
 
 /***/ }),
 
+/***/ 1805:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const fs_1 = __importDefault(__nccwpck_require__(7147));
+const xml2js = __importStar(__nccwpck_require__(6189));
+const line_grouper_1 = __importDefault(__nccwpck_require__(3103));
+function getUncoveredFromPackage(coberturaPackage) {
+    const uncovered = [];
+    for (const coberturaClass of coberturaPackage.classes.class) {
+        for (const coberturaMethod of coberturaClass.methods.method) {
+            const fileName = coberturaClass.$.filename;
+            const grouper = new line_grouper_1.default();
+            for (const line of coberturaMethod.lines.line) {
+                if (line.$.hits === '0') {
+                    grouper.add(parseInt(line.$.number, 10));
+                }
+            }
+            uncovered.push(...grouper.buildGroups().map(group => ({
+                file: fileName,
+                startLine: group.start,
+                endLine: group.end
+            })));
+        }
+    }
+    return uncovered;
+}
+const getUncoveredLinesFromCobertura = (coveragePath) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    if (!fs_1.default.existsSync(coveragePath)) {
+        throw new Error(`Invalid coverage path, "${coveragePath}" not found.`);
+    }
+    const uncovered = [];
+    const parsed = yield xml2js.parseStringPromise(fs_1.default.readFileSync(coveragePath));
+    const packages = (_b = (_a = parsed === null || parsed === void 0 ? void 0 : parsed.coverage) === null || _a === void 0 ? void 0 : _a.packages) === null || _b === void 0 ? void 0 : _b.package;
+    if (!packages || !Array.isArray(packages)) {
+        throw new Error(`Unexpected Clover format encountered, expected coverage>project[]`);
+    }
+    for (const project of packages) {
+        uncovered.push(...getUncoveredFromPackage(project));
+    }
+    return uncovered;
+});
+exports["default"] = getUncoveredLinesFromCobertura;
+
+
+/***/ }),
+
 /***/ 9656:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -116,19 +187,67 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const clover_xml_handler_1 = __importDefault(__nccwpck_require__(3688));
 const coverage_format_1 = __importDefault(__nccwpck_require__(327));
+const clover_xml_handler_1 = __importDefault(__nccwpck_require__(3688));
+const cobertura_xml_handler_1 = __importDefault(__nccwpck_require__(1805));
 function getUncoveredLines(handler, coveragePath) {
     return __awaiter(this, void 0, void 0, function* () {
         switch (handler) {
             case coverage_format_1.default.CloverXml:
                 return yield (0, clover_xml_handler_1.default)(coveragePath);
+            case coverage_format_1.default.CoberturaXml:
+                return yield (0, cobertura_xml_handler_1.default)(coveragePath);
             default:
                 throw new Error(`Unknown coverage handler "${handler}"`);
         }
     });
 }
 exports["default"] = getUncoveredLines;
+
+
+/***/ }),
+
+/***/ 3103:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+class LineGrouper {
+    constructor(lines = []) {
+        this.lines = lines;
+    }
+    add(lineNumber) {
+        this.lines.push(lineNumber);
+    }
+    buildGroups() {
+        const groups = [];
+        let groupStart = undefined;
+        let groupEnd = undefined;
+        for (const line of this.lines) {
+            if (groupStart !== undefined &&
+                groupEnd !== undefined &&
+                line - groupEnd > 1) {
+                groups.push({
+                    start: groupStart,
+                    end: groupEnd
+                });
+                groupStart = undefined;
+                groupEnd = undefined;
+            }
+            groupStart !== null && groupStart !== void 0 ? groupStart : (groupStart = line);
+            groupEnd = line;
+        }
+        if (groupStart !== undefined && groupEnd !== undefined) {
+            groups.push({
+                start: groupStart,
+                end: groupEnd
+            });
+        }
+        return groups;
+    }
+}
+exports["default"] = LineGrouper;
 
 
 /***/ }),
@@ -140,7 +259,8 @@ exports["default"] = getUncoveredLines;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const CoverageFormat = Object.freeze({
-    CloverXml: 'clover-xml'
+    CloverXml: 'clover-xml',
+    CoberturaXml: 'cobertura-xml'
 });
 exports["default"] = CoverageFormat;
 
