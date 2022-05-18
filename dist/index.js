@@ -157,7 +157,7 @@ const getUncoveredLinesFromCobertura = (coveragePath) => __awaiter(void 0, void 
     const parsed = yield xml2js.parseStringPromise(fs_1.default.readFileSync(coveragePath));
     const packages = (_b = (_a = parsed === null || parsed === void 0 ? void 0 : parsed.coverage) === null || _a === void 0 ? void 0 : _a.packages) === null || _b === void 0 ? void 0 : _b.package;
     if (!packages || !Array.isArray(packages)) {
-        throw new Error(`Unexpected Clover format encountered, expected coverage>project[]`);
+        throw new Error(`Unexpected Cobertura format encountered, expected coverage>packages>package[]`);
     }
     for (const project of packages) {
         uncovered.push(...getUncoveredFromPackage(project));
@@ -325,10 +325,10 @@ function getModifiedLinesFromUnifiedDiff(unifiedDiff) {
     return modifiedLines;
 }
 exports.getModifiedLinesFromUnifiedDiff = getModifiedLinesFromUnifiedDiff;
-function getModifiedFiles(targetBranch) {
+function getModifiedLines(targetBranch) {
     return getModifiedLinesFromUnifiedDiff(getUnifiedDiff(targetBranch));
 }
-exports["default"] = getModifiedFiles;
+exports["default"] = getModifiedLines;
 
 
 /***/ }),

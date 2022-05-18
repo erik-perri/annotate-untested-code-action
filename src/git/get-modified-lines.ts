@@ -64,9 +64,9 @@ function getModifiedLinesFromUnifiedDiff(unifiedDiff: string): Line[] {
   return modifiedLines
 }
 
-function getModifiedFiles(targetBranch: string): Line[] {
+function getModifiedLines(targetBranch: string): Line[] {
   return getModifiedLinesFromUnifiedDiff(getUnifiedDiff(targetBranch))
 }
 
 export {getModifiedLinesFromUnifiedDiff, Line}
-export default getModifiedFiles
+export default getModifiedLines

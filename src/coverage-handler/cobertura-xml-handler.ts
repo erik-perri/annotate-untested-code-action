@@ -103,7 +103,7 @@ const getUncoveredLinesFromCobertura: GetUncoveredLines = async (
   const packages = parsed?.coverage?.packages?.package
   if (!packages || !Array.isArray(packages)) {
     throw new Error(
-      `Unexpected Clover format encountered, expected coverage>project[]`
+      `Unexpected Cobertura format encountered, expected coverage>packages>package[]`
     )
   }
 

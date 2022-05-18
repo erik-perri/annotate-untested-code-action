@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as fs from 'fs'
 import CoverageFormat from './enum/coverage-format'
-import getModifiedFiles from './git/get-modified-lines'
+import getModifiedLines from './git/get-modified-lines'
 import getUncoveredLines from './coverage-handler/get-uncovered-lines'
 
 async function run(): Promise<void> {
@@ -45,7 +45,7 @@ async function run(): Promise<void> {
       return
     }
 
-    const modifiedLines = getModifiedFiles(targetBranch)
+    const modifiedLines = getModifiedLines(targetBranch)
     const uncoveredLines = await getUncoveredLines(format, coveragePath)
 
     core.info(`modifiedLines ${JSON.stringify(modifiedLines, null, 2)}`)
